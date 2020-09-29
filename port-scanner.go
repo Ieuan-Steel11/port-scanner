@@ -10,6 +10,7 @@ import (
 func main() {
 	host, max_ports := getArgs()
 	// gets the host and ports to scan
+	fmt.Println("Scanning", host, "...")
 
 	results := make(chan int)
 	ports := make(chan int, 100)
@@ -22,21 +23,23 @@ func main() {
 		go scanner(ports, results, host)
 		// concurrently scanning ports
 		// scannign ports before channel reaches 100
+		
 	}
 
 	go func(){
-		for j := 1; j < max_ports; j++ {
+		for j := 1; j <= max_ports; j++ {
 			ports <- j
 			// continually adding ports to be used
      	}
 	}()
 
-	for k := 0; k  < max_ports; k++ {
+	for i := 0; i < max_ports; i++ {
 		port := <- results
 		// port is sent from results channel
 
 		if port != 0 {
 			open_ports = append(open_ports, port)
+			continue
 		}
 	} 
 
@@ -74,8 +77,8 @@ func scanner(ports chan int, results chan int, host string) {
 		// scans the port 
 
 		if err != nil {
-			results <- 0
 			// sends negative result if it does not work
+			results <- 0
 			continue
 		}
 		connection.Close()
